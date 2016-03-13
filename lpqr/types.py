@@ -99,8 +99,8 @@ class PixelRegion(object):
 
         for rowIndex, row in enumerate(other.getRows()):
             for colIndex, character in enumerate(row):
-                x = rowIndex + y_top
-                y = colIndex + x_left
+                y = rowIndex + y_top
+                x = colIndex + x_left
                 if character is not None:
                     self.bitfield[y][x] = character
 
