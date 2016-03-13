@@ -1,0 +1,11 @@
+{
+    "instances": [
+	{
+	    "name": "utf8",
+	    "neither": " ",
+	    "top": "\u2580",
+	    "bottom": "\u2584",
+	    "both": "\u2588"
+	}
+    ]
+}
