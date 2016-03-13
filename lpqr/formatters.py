@@ -84,7 +84,6 @@ class FormatterLibraryNode(object):
 def parseFormatters():
     directory = os.path.dirname(os.path.abspath(__file__))
     subclasses = [sub for sub in Formatter.__subclasses__()]
-    print subclasses
 
     instances = {}
     for subclass in subclasses:
