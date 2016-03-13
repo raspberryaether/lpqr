@@ -6,6 +6,13 @@
 	    "top": "\u2580",
 	    "bottom": "\u2584",
 	    "both": "\u2588"
+	},
+	{
+	    "name": "cp437",
+	    "neither": " ",
+	    "top": "\u00DF",
+	    "bottom": "\u00DC",
+	    "both": "\u00DB"
 	}
     ]
 }
