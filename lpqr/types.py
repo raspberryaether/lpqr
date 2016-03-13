@@ -11,12 +11,14 @@ class PixelRegion(object):
     of 0 signifies the topmost row.
 
     """
-    def __init__(self, size_x, size_y):
+    LITERAL_GRAMMAR = {True: "#", False: ".", None: " "}
+
+    def __init__(self, (width, height), defaultValue=None):
         """bitfield: a matrix of pixels"""
-        self.bitfield = [[False for x in xrange(size_x)]
-                         for y in xrange(size_y)]
-        self.width = size_x
-        self.height = size_y
+        self.bitfield = [[defaultValue for x in xrange(width)]
+                         for y in xrange(height)]
+        self.width = width
+        self.height = height
 
     def __getitem__(self, (x, y) ):
         """gets the value of the pixel at the specified location"""
@@ -26,16 +28,25 @@ class PixelRegion(object):
     def __setitem__(self, (x, y), val):
         """sets the value of the pixel at the specified location"""
         self.checkIndex((x, y))
-        self.bitfield[y][x] = bool(val)
+        self.bitfield[y][x] = None if val is None else bool(val)
+
+    def __repr__(self):
+        prefix = "PixelRegion("
+        argList = []
+        for i, line in enumerate(self.toLiteral()):
+            argList.append('"{}"'.format(line))
+
+        separation = ",\n" + " " * len(prefix)
+        reprOut = prefix + separation.join(argList) + ")"
+        return reprOut
 
     @classmethod
     def literal(cls, *patternLines):
         """creates a new PixelRegion from the given pattern.
 
-        use the character '#' for True pixels.
-        use the character '.' for False pixels.
+        refer to the LITERAL_GRAMMAR constant for usage
 
-        suggested usage:
+        example suggested usage (with default LITERAL_GRAMMAR):
             # makes a V shape:
             PixelRegion.literal("#...#",
                                 ".#.#.",
@@ -47,8 +58,9 @@ class PixelRegion(object):
             height += 1
             width = max(width, len(line))
 
-        region = PixelRegion(width, height)
-        parser = {"#": True, ".": False}
+        region = PixelRegion((width, height))
+        parser = {value: key for key, value
+                  in cls.LITERAL_GRAMMAR.iteritems()}
 
         for y_index, line in enumerate(patternLines):
             for x_index, character in enumerate(line):
@@ -73,7 +85,7 @@ class PixelRegion(object):
         for row in self.bitfield:
             outputRow = ""
             for bit in row:
-                outputRow += "#" if bit else "."
+                outputRow += self.LITERAL_GRAMMAR[bit]
             output.append(outputRow)
         return output
 
@@ -83,6 +95,9 @@ class PixelRegion(object):
             (other.height - y_top) > self.height):
             raise ValueError
 
-        x_slice = slice(x_left, x_left + other.width)
-        for index, row in enumerate(other.getRows()):
-            self.bitfield[index + y_top][x_slice] = row
+        for rowIndex, row in enumerate(other.getRows()):
+            for colIndex, character in enumerate(row):
+                x = rowIndex + y_top
+                y = colIndex + x_left
+                if character is not None:
+                    self.bitfield[y][x] = character
