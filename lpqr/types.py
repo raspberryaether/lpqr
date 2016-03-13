@@ -4,6 +4,8 @@
 provides data types for use with lpqr
 """
 
+import qrcode.image.base
+
 class PixelRegion(object):
     """represents a rectangle of pixels.
 
@@ -101,3 +103,34 @@ class PixelRegion(object):
                 y = colIndex + x_left
                 if character is not None:
                     self.bitfield[y][x] = character
+
+class LPQRImage( qrcode.image.base.BaseImage ):
+    """implementation of qrcode module's image-processing base class"""
+
+    kind = "lpqr"
+    allowed_kinds = (kind,)
+
+    def drawrect(self, row, col):
+        box = PixelRegion(2 * (self.box_size,), True)
+        location = (col * self.box_size + self.border,
+                    row * self.box_size + self.border)
+        self._img.paste(box, location)
+
+    def save(self, stream, kind=None):
+        for line in self._img.toLiteral(self):
+            stream.write(line + "\n")
+
+    def new_image(self, **kwargs):
+        totalSize = ((self.border * 2) +
+                     (self.width * self.box_size))
+        return PixelRegion(2 * (totalSize,))
+
+    def get_image(self, **kwargs):
+        """temporary(?) override of qrcode library function
+
+        it looks as if this function has an error-- it ought to return the
+        object's _img attribute and instead it tries to return _img resulting
+        in a NameError. This override fixes that.
+
+        """
+        return self._img
